@@ -54,25 +54,77 @@
             .j-connections path.j-show{
                 opacity: 1;
             }
+            .j-form{
+                width: 600px;
+                height: 600px;
+
+            }
+            .j-form select{
+                display: block;
+                width: 400px;
+                border:none;
+                background: lightgray; 
+                font-family: sans-serif;
+                margin-top: 10px;
+                font-size: 14px;
+                padding: 8px;
+            }
+            .j-type-member{
+                color:rgb(24, 97, 9)
+            }
+            .j-type-proj{
+                color:rgb(25, 53, 95)
+            }
+            .j-type-sdg{
+                color:rgb(141, 63, 11)
+            }
+            .j-type-gov{
+                color:rgb(122, 10, 113)
+            }
         </style>
     </head>
     <body>
-        <div id="j-circ">
-            
-
+        <div class="j-form">
+            <select id="member">
+                <option value="0">Please Choose a Member</option>
+            </select>
+            <select id="proj">
+                <option value="0">Please Choose a Project</option>
+            </select>
+            <select id="sdg">
+                <option value="0">Please Choose a SDG Indicator</option>
+            </select>
+            <select id="gov">
+                <option value="0">Please Choose a Gov Strucutre</option>
+            </select>
         </div>
+        <div id="j-circ"></div>
     </body>
     <script>
-    var data = []
+    const memberDom = document.getElementById('member')
+const projectDom = document.getElementById('proj')
+const sdgDom = document.getElementById('sdg')
+const govDom = document.getElementById('gov')
+
+const appendOption = (drName, value, text) => {
+    const option = document.createElement('option');
+    option.setAttribute('value', value)
+    option.innerText = text;
+    document.getElementById(drName).append(option);
+}
+
+var data = []
 for(let sdgIndex = 1; sdgIndex < 18; sdgIndex++){
+    appendOption('sdg', 'SDG'+sdgIndex, 'SDG'+sdgIndex)
     data.push({type:'sdg', name: 'SDG'+sdgIndex})
 }
 
 data.push({type:'member', name: 'FAO'})
 data.push({type:'member', name: 'UNFPA'})
 data.push({type:'member', name: 'UNHCR'})
-// 2.1.1, 2.1.2, 2.3.1, 2.3.2, 2.5.1, 2.5.2, 2.a.1, 2.c.1, 5.a.1, 5.a.2, 14.4.1, 15.1.1, 15.2,1 and SDG 11.6.1
-// 2.3.1, 2.3.2
+appendOption('member', 'FAO', 'FAO')
+appendOption('member', 'UNFPA', 'UNFPA')
+appendOption('member', 'UNHCR', 'UNHCR')
 const connections = [
     [1, 'FAO'],
     [2, 'FAO'],
@@ -137,8 +189,24 @@ const connections = [
     [18, 'SDG3'],
     [19, 'SDG1'],
     [20, 'SDG1'],
-
+    ['MEPA',16],
+    ['AoG',20],
+    ['Geostat',2],
+    ['MoH',2],
+    ['NCDC',5],
+    ['MEPA',11],
+    ['AoG',2],
+    ['Geostat',13],
+    ['MoH',7],
+    ['NCDC',8],
+    ['MEPA',9],
+    ['AoG',10],
+    ['Geostat',1],
+    ['MoH',3],
+    ['NCDC',3],    
 ]
+
+
 
 const projects = [
 { id: 1, name: 'Support to the Ministry of Agriculture (MoA) in SDGs implementation and monitoring'},
@@ -161,11 +229,28 @@ const projects = [
 { id: 18, name: 'Improving livelihoods and Access to Education for Persons of Concern to UNHCR in Eastern Abkhazia'},
 { id: 19, name: 'Improving Educational Infrastructure for Multi-ethnic Youth in Abkhazia'},
 { id: 20, name: 'Addressing Violence against Women and Girls in Abkhazia '}]
+
 projects.forEach(project => {
     data.push({id: project.id, type: 'proj', name: project.name})
+    appendOption('proj', project.id, project.name)
+})
+
+gov = ['MEPA',
+'AoG',
+'Geostat',
+'MoH',
+'NCDC']
+
+gov.forEach(gg => {
+    data.push({type: 'gov', name: gg})
+    appendOption('gov', gg, gg)
 })
 
 
+
+
+
+// https://htmlpreview.github.io/?https://github.com/DatoJanez/circular_dep/blob/master/index.html
 
 const svgLines = [];
 const rootDom = document.getElementById('j-circ');
@@ -198,7 +283,7 @@ data.forEach((singleData, index) => {
     const elem = document.createElement('div');
     elem.innerHTML = singleData.name;
     singleData.dom = elem;
-    elem.className = 'j-node'
+    elem.className = 'j-node j-type-'+singleData.type;
     singleData.degree = 360 * index / data.length;
     elem.style = 'transform: translateY(-50%) rotate('+ singleData.degree +'deg)';
     elem.setAttribute('data-id', singleData.id)
@@ -207,8 +292,67 @@ data.forEach((singleData, index) => {
     elem.addEventListener('click', () => {
         svgLines.forEach(line => line.setAttribute('class', ''))
         if(singleData.lines) singleData.lines.forEach(line => line.setAttribute('class', 'j-show'))
+        setOption(singleData.id || singleData.name)
     })
 })
+
+const selects = [projectDom,
+sdgDom,
+govDom,
+memberDom]
+
+const setOption = (value) => {
+    selects.forEach(s => {
+        s.value = 0;
+        for ( var i = 0, l = s.options.length; i < l; i++ ) {
+            if ( s.options[i].value == value ) {
+                s.value = value;
+            }
+        }
+    })
+    
+}
+
+memberDom.addEventListener('change', (ev) => {
+    projectDom.value = 0;
+    sdgDom.value = 0;
+    govDom.value = 0;
+    svgLines.forEach(line => line.setAttribute('class', ''))
+    elem2 = data.filter(el => el.id && el.id == ev.target.value)[0]
+    elem2 = elem2 || data.filter(el => el.name == ev.target.value)[0]
+    if(elem2.lines) elem2.lines.forEach(line => line.setAttribute('class', 'j-show'))
+})
+projectDom.addEventListener('change', (ev) => {
+    memberDom.value = 0;
+    sdgDom.value = 0;
+    govDom.value = 0;
+    svgLines.forEach(line => line.setAttribute('class', ''))
+    elem2 = data.filter(el => el.id && el.id == ev.target.value)[0]
+    elem2 = elem2 || data.filter(el => el.name == ev.target.value)[0]
+    if(elem2.lines) elem2.lines.forEach(line => line.setAttribute('class', 'j-show'))
+})
+sdgDom.addEventListener('change', (ev) => {
+    projectDom.value = 0;
+    memberDom.value = 0;
+    govDom.value = 0;
+    svgLines.forEach(line => line.setAttribute('class', ''))
+    elem2 = data.filter(el => el.id && el.id == ev.target.value)[0]
+    elem2 = elem2 || data.filter(el => el.name == ev.target.value)[0]
+    if(elem2.lines) elem2.lines.forEach(line => line.setAttribute('class', 'j-show'))
+})
+govDom.addEventListener('change', (ev) => {
+    projectDom.value = 0;
+    sdgDom.value = 0;
+    memberDom.value = 0;
+    svgLines.forEach(line => line.setAttribute('class', ''))
+    elem2 = data.filter(el => el.id && el.id == ev.target.value)[0]
+    elem2 = elem2 || data.filter(el => el.name == ev.target.value)[0]
+    if(elem2.lines) elem2.lines.forEach(line => line.setAttribute('class', 'j-show'))
+})
+// projectDom
+// sdgDom
+// govDom
+
 
 const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
 svg.setAttribute('class', 'j-connections' );
