@@ -1,6 +1,64 @@
 <html>
 <body>
- 
+  <style>
+    body{
+    margin: 0;
+    /* display: flex; */
+    /* align-items: center; */
+    /* justify-content: center; */
+    font-family: sans-serif;
+    height: 100%;
+    /* position: fixed; */
+    width: 100%;
+}
+
+.j-form{
+    width: 100%;
+    height: 400px;
+
+}
+.j-form select{
+    display: inline-block;
+    width: 400px;
+    border:none;
+    background: lightgray; 
+    font-family: sans-serif;
+    margin-top: 10px;
+    font-size: 14px;
+    padding: 8px;
+    height: 300px;
+}
+.j-type-member{
+    color:rgb(24, 97, 9)
+}
+.j-type-proj{
+    color:rgb(25, 53, 95)
+}
+.j-type-sdg{
+    color:rgb(141, 63, 11)
+}
+.j-type-gov{
+    color:rgb(122, 10, 113)
+}</style>
+ <!-- <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script> -->
+ <div class="j-form">
+  <select id="nat" multiple>
+      <option value="0">All</option>
+  </select>
+  <select id="int" multiple>
+      <option value="0">All</option>
+  </select>
+  <select id="sdg" multiple>
+      <option value="0">All</option>
+  </select>
+  <select id="proj" multiple>
+      <option value="0">All</option>
+  </select>
+  <!-- <select id="year" >
+      <option value="0">Please Choose a Year</option>
+  </select> -->
+  <button> Filter</button>
+</div>
 <div id="sankey_multiple" style="width: 900px; height: 300px;"></div>
 
 <script type="text/javascript">
@@ -434,18 +492,120 @@ const flowsHash = [];
 const clearData = [];
 
 
+const appendOption = (drName, value, text) => {
+    const option = document.createElement('option');
+    option.setAttribute('value', value)
+    option.innerText = text;
+    document.getElementById(drName).append(option);
+}
+
 rows.forEach(row => {
   cells = row.split(',');
   // cells.shift();
   sdg = cells[5].split('\n').map(gg => gg.split(' ')[0].replace(/(^")|(\.$)|(,$)|(:$)/g, "")).filter(g => g);
   clearData.push({title:cells[0], dates:cells[1], national:cells[2].split('\n').filter(g => g), international: cells[3].split('\n').filter(g => g), sdgind: sdg})
 })
+
 clearData.forEach(dataRow => {
+    dataRow.national.forEach(cc => {
+      vv = cc.substr(0, 35).replace(/(^")|("$)|(\.$)|(,$)|(:$)/g, "").trim();
+      existes = document.querySelectorAll('option[value="'+vv+'"]')
+      if(existes.length == 0){
+        appendOption('nat', vv, vv)
+      }
+    })
+    dataRow.international.forEach(cc => {
+      vv = cc.substr(0, 35).replace(/(^")|("$)|(\.$)|(,$)|(:$)/g, "").trim();
+      existes = document.querySelectorAll('option[value="'+vv+'"]')
+      if(existes.length == 0){
+        appendOption('int', vv, vv)
+      }
+    }) 
+
+    dataRow.sdgind.forEach(cc => {
+      vv = cc.substr(0, 35).replace(/(^")|("$)|(\.$)|(,$)|(:$)/g, "").trim();
+      existes = document.querySelectorAll('option[value="'+vv+'"]')
+      if(existes.length == 0){
+        appendOption('sdg', vv, vv)
+      }
+    }) 
+    appendOption('proj', dataRow.title.substr(0, 35), dataRow.title.substr(0, 35))
+    // dataRow.sdgind.forEach(cc => flows.push([dataRow.title.substr(0, 35), cc, 1]));
+    // flows =  flows.concat(nat).concat(int).concat(sdg)
+})
+
+document.getElementsByTagName('button')[0].addEventListener('click', () => {
+  int = Array.apply(null, document.getElementById('int').options)
+    .filter(option => option.selected)
+    .map(option => option.value)
+    .filter(val => val);
+  nat = Array.apply(null, document.getElementById('nat').options)
+    .filter(option => option.selected)
+    .map(option => option.value)
+    .filter(val => val);
+  proj = Array.apply(null, document.getElementById('proj').options)
+    .filter(option => option.selected)
+    .map(option => option.value)
+    .filter(val => val);
+  sdg = Array.apply(null, document.getElementById('sdg').options)
+    .filter(option => option.selected)
+    .map(option => option.value)
+    .filter(val => val);
+  let fdata = [];  
+  clearData.forEach(dd => {
+    projPassed = !proj.length || proj.indexOf(dd.title.substr(0, 35)) !== -1
+    
+      
+      intPassed = true;
+      if(int.length){
+        intPassed = false;
+        dd.international.forEach(cc => {
+          vv = cc.substr(0, 35).replace(/(^")|("$)|(\.$)|(,$)|(:$)/g, "").trim();
+          if(int.indexOf(vv) !== -1){
+            intPassed = true;
+          }
+        }) 
+      }
+
+      natPassed = true;
+      if(nat.length){
+        natPassed = false;
+        dd.national.forEach(cc => {
+          vv = cc.substr(0, 35).replace(/(^")|("$)|(\.$)|(,$)|(:$)/g, "").trim();
+          if(nat.indexOf(vv) !== -1){
+            natPassed = true;
+          }
+        }) 
+      }
+
+      sdgPassed = true;
+      if(sdg.length){
+        sdgPassed = false;
+        dd.sdgind.forEach(cc => {
+          vv = cc.substr(0, 35).replace(/(^")|("$)|(\.$)|(,$)|(:$)/g, "").trim();
+          if(sdg.indexOf(vv) !== -1){
+            sdgPassed = true;
+          }
+        }) 
+      }
+      if(sdgPassed && intPassed && natPassed && projPassed){
+        fdata.push(dd)
+      }
+    
+    
+  })
+  drow(fdata.length ? fdata : clearData)
+})
+
+const drow = (filteredData) => {
+  flows = [];
+  filteredData.forEach(dataRow => {
     dataRow.national.forEach(cc => {
       vv = cc.substr(0, 35).replace(/(^")|("$)|(\.$)|(,$)|(:$)/g, "").trim();
       existes = flows.filter(f => f[0] == 'National partners' && f[1] == vv);
       if(existes.length == 0){
         flows.push(['National partners', vv, 1] )
+        appendOption('nat', vv, vv)
       }
       flows.push([vv, dataRow.title.substr(0, 35) , 1])
     })
@@ -454,6 +614,7 @@ clearData.forEach(dataRow => {
       existes = flows.filter(f => f[0] == 'International partners' && f[1] == vv);
       if(existes.length == 0){
         flows.push(['International partners', vv, 1])
+        appendOption('int', vv, vv)
       }
       flows.push([vv, dataRow.title.substr(0, 35) , 1]);
     }) 
@@ -479,7 +640,7 @@ clearData.forEach(dataRow => {
     
     var options = {
       width: 1800,
-      height:2700,
+      height:flows.length * 10,
       sankey: {
         node: { 
           label: { fontSize: 14  }, 
@@ -497,9 +658,9 @@ clearData.forEach(dataRow => {
     chart.draw(data, options);
    }
 
+  }
 
-
-
+  drow(clearData);
 </script>
 </body>
 </html>
