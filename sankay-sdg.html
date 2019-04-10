@@ -1,0 +1,540 @@
+<html>
+    <head>
+        <link href="https://fonts.googleapis.com/css?family=Heebo" rel="stylesheet">
+        <style>
+            body{
+                margin:0;
+                background: #f8f7f5;
+            }
+            tspan{
+                font-family: 'Heebo', sans-serif;
+                font-size: .8em;
+            }
+        </style>
+    </head>
+    <body>
+
+            <div id="chartdiv" style="height:700%"></div>
+
+
+        <!-- <script src="https://unpkg.com/d3-array@1"></script>
+        <script src="https://unpkg.com/d3-collection@1"></script>
+        <script src="https://unpkg.com/d3-path@1"></script>
+        <script src="https://unpkg.com/d3-shape@1"></script>
+        <script src="https://unpkg.com/d3-sankey@0"></script>
+        <script src="https://unpkg.com/d3-format@1"></script> -->
+        <!-- <script src="https://unpkg.com/d3-scale@1"></script> -->
+        
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/rxjs/6.4.0/rxjs.umd.min.js"></script>
+        <script src="https://d3js.org/d3-dsv.v1.min.js"></script>
+        <script src="https://unpkg.com/d3-fetch@1"></script>
+        <script src="https://www.amcharts.com/lib/4/core.js"></script>
+        <script src="https://www.amcharts.com/lib/4/charts.js"></script>
+        <script src="https://www.amcharts.com/lib/4/themes/dark.js"></script>
+        <script src="https://www.amcharts.com/lib/4/themes/animated.js"></script>
+        <script>
+        // const dataStream = rxjs.from(
+let rows =   d3.csvParse(`project,dates,natOrgs,intOrgs,gsdg,natSdgs,m, 
+Reduction and Prevention of Statelessness in Georgia,January – December 2018,"Innovations and Reforms Center (NGO)",UNHCR,"SDG16/
+16.b  Promote and enforce non-discriminatory laws and policies for sustainable development
+16.9  By 2030- provide legal identity for all- including birth registratio","16.9.1
+16.b.1",1961 Convention on the Reduction of Statelessness                        1954 Convention relating to the Status of Stateless Persons                      1989 Convention on the Rights of the Child     1966 International Covenant on Civil and Political Rights                              ,,Democratic Governance
+Free Legal Aid for Internally Displaced Persons (IDPs) in Georgia,January 2018 – December 2018,Consortium Legal Aid Georgia (NGO) ,UNHCR,SDG16/16.3  Promote the rule of law at the national and international levels and ensure equal access to justice for all,"16.10.2.a
+16.3.1",,,Democratic Governance
+Supporting Durable Solutions for Refugees and Humanitarian Status Holders in Georgia,October – December- 2018,Public Advocacy (NGO),UNHCR,"SDG4/4.1  By 2030- ensure that all girls and boys complete free- equitable and quality primary and secondary education leading to relevant and effective learning outcomes 
+
+4.5  By 2030- eliminate gender disparities in education and ensure equal access to all levels of education and vocational training for the vulnerable- including persons with disabilities and children in vulnerable situations
+
+SDG8/8.5  By 2030- achieve full and productive employment and decent work for all women and men- including for young people and persons with disabilities- and equal pay for work of equal value","4.1.1
+4.5.1
+8.5.2",1989 Convention on the Rights of the Child        1966 Covenant on Economic- Social and Cultural rights. 1965 International Convention on the Elimination of All Forms of Racial Discrimination ,,Economic Development
+Support to the Office of the Public Defender (Ombudsman) to Enhance its Capacity to Address the Situation of Asylum Seekers and Persons granted International Protection in Georgia ,January 2018 – December 2018,The Office of the Public Defender (Ombudsman) of Georgia (National partner),UNHCR,SDG16/16.3  Promote the rule of law at the national and international levels and ensure equal access to justice for all,"16.10.2.a. Population access to open data increased 
+16.3.1: Proportion of victims of violence in the previous 12 months who reported their victimization to competent authorities or other officially recognized conflict resolution mechanisms",1951 Convention relating to the Status of Refugees,,Democratic Governance
+Prevention and Elimination of SGBV in Refugee  community,January 2018 – December 2018,Sakhli-Advice Centre for Women (NGO),UNHCR,"SDG5/
+5.1  End all forms of discrimination against all women and girls everywhere
+5.2  Eliminate all forms of violence against all women and girls in the public and private spheres- including trafficking and sexual and other types of exploitation","5.1.3. Existence of the National Action Plan for Combating Violence against Women and Domestic Violence- which is implemented under a specific budget and which implementation is subject to monitoring
+5.1.4 Pursuant to national legislation- non-discrimination against women is governed in conformity with the international standards by 2022- majority of CEDAW Committee recommendations fulfilled- in the direction of the enforcement of non-discrimination legislation
+5.2.1: Proportion of ever-partnered women and girls aged 15-64 years subjected to physical- sexual or psychological violence by a current or former intimate partner over the past 12 months- by form of violence and by age
+5.2.2: Proportion of women and girls aged 15-64 years  subjected to sexual violence by persons other than an intimate partner over the past 12 months- by age and place of occurrence ",1979 Convention on the  Elimination of all forms of Discrimination against women    1965 International Convention on the Elimination of All Forms of Racial Discrimination   ,,Democratic Governance
+Protecting and empowering refugees- asylum-seekers and humanitarian status holders in Georgia,January 2018 – December 2018,United Nations Associtation of Georgia (NGO),UNHCR,"SDG16/16.3  Promote the rule of law at the national and international levels and ensure equal access to justice for all
+
+SDG4/4.1  By 2030- ensure that all girls and boys complete free- equitable and quality primary and secondary education leading to relevant and effective learning outcomes
+4.5  By 2030- eliminate gender disparities in education and ensure equal access to all levels of education and vocational training for the vulnerable- including persons with disabilities and children in vulnerable situations
+","16.10.2.a. Population access to open data increased 
+16.3.1: Proportion of victims of violence in the previous 12 months who reported their victimization to competent authorities or other officially recognized conflict resolution mechanisms
+
+4.1.1 By 2030- 100% of children have access to primary and secondary education. 100% of children are included in the General Education sector. All children possess basic reading and mathematics skills
+
+4.5.1 By 2030- equal participation of men and women in general- vocational and higher education system ensured ",1951 Convention Relating to the Status of Refugees 1989 Convention on the Rights of the Child    1966 International Covenant on Civil and Political Rights          1966 Covenant on Economic- Social and Cultural rights.     ,,Democratic Governance
+Developing Georgian language audio lessons for  Integration of persons under international protection- Asylum seekers and other POCs in Georgia,September - December- 2018,Zhvania School of Public Administration (National partner),UNHCR,"SDG4/4.1  By 2030- ensure that all girls and boys complete free- equitable and quality primary and secondary education leading to relevant and effective learning outcomes
+
+4.5  By 2030- eliminate gender disparities in education and ensure equal access to all levels of education and vocational training for the vulnerable- including persons with disabilities and children in vulnerable situations","4.1.1 By 2030- 100% of children have access to primary and secondary education. 100% of children are included in the General Education sector. All children possess basic reading and mathematics skills
+
+4.5.1 By 2030- equal participation of men and women in general- vocational and higher education system ensured ",1989 Convention on the Rights of the Child    ,,Democratic Governance
+Public Service Development Agency,January - December- 2018,Government ,UNHCR,"SDG16/
+
+16.9  By 2030- provide legal identity for all- including birth registration                                                                      16.10  Ensure continuous public access to information and protect fundamental freedoms- in accordance with national legislation and international agreements",16.9.1 Number of homeless children provided with the personal identification document- including temporary identification card                                                            16.10.2.b. At least 64 community centers are operating at full capacity. Through these centers- local population have access to over 200 public and private services,1961 Convention on the Reduction of Statelessness                        1954 Convention relating to the Status of Stateless Persons                      1989 Convention on the Rights of the Child     1966 International Covenant on Civil and Political Rights                              ,,Democratic governance
+Ministry of Internally Displaced Persons from Occupied Territories- Accommodation and Refugees of Georgia (MRA)  and Ministry of Internal Affairs (MIA),January - July 2018 (MRA) and August-December 2018 (MIA),Government ,UNHCR,SDG16/16.3  Promote the rule of law at the national and international levels and ensure equal access to justice for all,16.10.2.a. Population access to open data increased 16.3.1: Proportion of victims of violence in the previous 12 months who reported their victimization to competent authorities or other officially recognized conflict resolution mechanisms,1951 Convention Relating to the Status of Refugees 1989 Convention on the Rights of the Child    1966 International Covenant on Civil and Political Rights          1966 Covenant on Economic- Social and Cultural rights.     ,,Democratic governance
+Tbilisi City Court and Court of Appeal ,January- December 2018,Government ,UNHCR,SDG16/16.3  Promote the rule of law at the national and international levels and ensure equal access to justice for all,16.10.2.a. Population access to open data increased 16.3.1: Proportion of victims of violence in the previous 12 months who reported their victimization to competent authorities or other officially recognized conflict resolution mechanisms,1951 Convention Relating to the Status of Refugees 1989 Convention on the Rights of the Child    1966 International Covenant on Civil and Political Rights          1966 Covenant on Economic- Social and Cultural rights.     ,,Democratic governance
+Supporting agricultural livelihood activities of PoCs to UNHCR in Abkhazia,October – December 2018,Action Against Hunger (INGO),UNHCR,SDG8/8.5  By 2030- achieve full and productive employment and decent work for all women and men- including for young people and persons with disabilities- and equal pay for work of equal value,8.5.2 Unemployment rate by 2030 - 9.5%,1966 Covenant on Economic- Social and Cultural Rights,,"Economic Development
+
+Crisis Prevention and Recovery"
+Information and legal support to vulnerable groups of the Eastern and other regions of Abkhazia ,January 2018 – December 2018,Centre for Humanitarian Programs (NGO),UNHCR,"SDG16/
+16.3  Promote the rule of law at the national and international levels and ensure equal access to justice for all 16.10  Ensure public access to information and protect fundamental freedoms- in accordance with national legislation and international agreements","16.10.2.a. Population access to open data increased 
+16.3.1: Proportion of victims of violence in the previous 12 months who reported their victimization to competent authorities or other officially recognized conflict resolution mechanisms",1966 International Covenant on Civil and Political Rights     ,,"Democratic Governance
+
+Crisis Prevention and Recovery"
+Improving livelihoods and Access to Education for Persons of Concern to UNHCR in Eastern Abkhazia,January 2018 – December 2018,Danish Refugee Council (INGO),UNHCR,"SDG4/4.5  By 2030- eliminate gender disparities in education and ensure equal access to all levels of education and vocational training for the vulnerable- including persons with disabilities and children in vulnerable situations
+
+SDG8/8.5  By 2030- achieve full and productive employment and decent work for all women and men- including for young people and persons with disabilities- and equal pay for work of equal value","4.5.1 By 2030- equal participation of men and women in general- vocational and higher education system ensured 
+
+8.5.2 Unemployment rate by 2030 - 9.5%",1966 International Covenant on Civil and Political Rights          1979 Convention on the  Elimination of all forms of Discrimination against women                      2006 Convention on the Rights of persons with Disabilities.,,"Economic Development
+
+Crisis Prevention and Recovery"
+Improving Educational Infrastructure for Multi-ethnic Youth in Abkhazia,March 2018 – September 2018,,"EU 
+UNDP 
+UNICEF 
+UNHCR","SDG4/4.1  By 2030- ensure that all girls and boys complete free- equitable and quality primary and secondary education leading to relevant and effective learning outcomes
+
+4.5  By 2030- eliminate gender disparities in education and ensure equal access to all levels of education and vocational training for the vulnerable- including persons with disabilities and children in vulnerable situations","4.1.1 By 2030- 100% of children have access to primary and secondary education. 100% of children are included in the General Education sector. All children possess basic reading and mathematics skills
+
+4.5.1 By 2030- equal participation of men and women in general- vocational and higher education system ensured ",1989 Convention on the Rights of the Child          1966 Covenant on Economic- Social and Cultural rights.     ,,"Democratic Governance
+
+Crisis Prevention and Recovery"
+Addressing Violence against Women and Girls in Abkhazia ,January 2018 – December 2018,,"UNHCR
+UN Women","SDG5/
+5.1  End all forms of discrimination against all women and girls everywhere
+5.2  Eliminate all forms of violence against all women and girls in the public and private spheres- including trafficking and sexual and other types of exploitation","5.1.3. Existence of the National Action Plan for Combating Violence against Women and Domestic Violence- which is implemented under a specific budget and which implementation is subject to monitoring
+5.1.4 Pursuant to national legislation- non-discrimination against women is governed in conformity with the international standards by 2022- majority of CEDAW Committee recommendations fulfilled- in the direction of the enforcement of non-discrimination legislation
+5.2.1: Proportion of ever-partnered women and girls aged 15-64 years subjected to physical- sexual or psychological violence by a current or former intimate partner over the past 12 months- by form of violence and by age
+5.2.2: Proportion of women and girls aged 15-64 years  subjected to sexual violence by persons other than an intimate partner over the past 12 months- by age and place of occurrence ",1979 Convention on the  Elimination of all forms of Discrimination against women      ,,"Democratic Governance
+
+Crisis Prevention and Recovery"
+Sexual and reproductive health,,"Health and Social Issues Committee of the Parliament of Georgia
+Administration of the Government of Georgia
+Territories Labour Health and Social Affairs (MoH) 
+National Centre for Disese Control and Public Health (NCDC)
+Ministry of Education Science Culture and Sport of Georgia
+Tbilisi State Medical University
+Association of Obstetrics and Gynecologists 
+Centre for Information and Councelling on RH Tanadgoma 
+Atinati 
+NCCE 
+Union Tanadgoma ","WHO
+UNICEF 
+EuTEACH 
+EEIRH 
+ICCPA 
+IFCPC
+Czech development agency.
+UNFPA",,"3.1.1 Maternal mortality ratio
+3.1.2 Proportion of birth attended by skilled personnel
+3.3.1 Number of new HIV infections per 1000 uninfected population by sex age and key populations 
+3.7.1 Proportion of women of reproductive age who have their need for family planning satisfied with modern methods
+3.8.1 Average coverage of essential services based on 4 tracer indicators in each of 4 categories: reproductive maternal newborn and child health infectious disease non-communicable diseases service capacity and access (contributing to reproductive and maternal health areas)
+5.6.2 Number of countries with laws and regulations that guarantee women aged 15–49 access to sexual and reproductive health care information and education
+17.18.1 ",,,
+Gender equality and women’s empowerment,,"Gender Equality Council of the Parliament
+Ministry of Ingernally Displaced Persons from Occupied  Territories Labour Health and Social Affairs (MoH) 
+National Centre for Disese Control and Public Heatlh (NCDC)
+Ministry of Education Science Culture and Sport of Georgia
+Inter-Agency Commission on Gender Equlaity Violence Against Women and Domstic Violence
+Local governents and municipalities in target regions
+Sapari Century 21st ","UNDP
+UN Women
+UNFPA",,"5.1.1.  თანასწორობისა და სქესის ნიშნით დისკრიმინაციის არარსებობის ხელშეწყობის აღსრულებისა და მონიტორინგის მიზნით საერთაშორისო სტანდართებთან შესაბამისი კანონმდებლობის არსებობა
+5.1.1.1 ქალთა დისკრიმინაციის აღმოფხვრის კომიტეტის წინა საანგარიშგებო ციკლის დასკვნითი შენიშვნების პროცენტული რაოდენობა რომლებიც  განხორციელდა
+3.7.2 Adolescent birth rate (aged 10-14 aged 15-19) per 1000 women of that age group
+5.3.1 Proportion of women aged 20-24 who were married or in a union before age 15 and before age 18
+5.3.1.1. გოგონების რაოდენობა რომლებმაც სკოლა ქორწინების გამო დატოვეს
+5.6.1 Proportion of women aged 15-49 years who make their own informed decisions regarding sexual relations contraceptive use and reproductive health care 
+5.6.2 Number of countries with laws and regulations that guarantee women aged 15–49 access to sexual and reproductive health care information and education",,,
+Population dynamics,,"Health and Social Issues Committee of the Parliament of Georgia
+Geostat 
+Administration of the Government of Georgia
+ISET 
+Local municipalities in target regions","UNECE
+UNFPA",,"17.19.2.a
+17.19.2.b",,,
+UN Joint Programme for Gender Equality,,"Gender Equality Council of the Parliament
+Ministry of Ingernally Displaced Persons from Occupied  Territories Labour Health and Social Affairs (MoH) 
+National Centre for Disese Control and Public Heatlh (NCDC)
+Ministry of Education Science Culture and Sport of Georgia
+Gender Equality Council of the Parliament:
+Inter-Agency Commission on Gender Equlaity Violence Against Women and Domstic Violence
+Tbilisi State Medical University
+Local government and Municipalities in Kakheti and Samegrelo Region local Gender Equality Councils
+Centre for Information and Councelling on RH Tanadgoma 
+Atinati 
+NCCE 
+GYDEA 
+We Care  ","UNDP 
+UN Women 
+WB
+PromundoUS
+UNFPA",,"3.7.2
+5.1.1
+5.1.1.1
+5.3.1
+5.3.1.1
+5.6.1
+5.6.2
+4.7.1
+4.7.1.a
+4.7.1.b
+4.7.1.c
+4.7.1.d
+4.g.1
+8.6.1 ",,,
+Global Programme for Prevention of Son Preference and Undervaluing of Girls,,"Inter-Agency Commission on Gender Equlaity Violence Against Women and Domstic Violence
+Ministry of Justice - Public Service Development Agency
+Local government and Municipalities in Kvemo Kartli 
+Local Gender Equaltiy Council in Kvemo Kartli 
+NCCE","International Children’s Center 
+TURKEY
+CEPED
+UNFPA",,"5.1.1 
+5.1.1.1 ",,,
+Support to the Ministry of Agriculture (MoA) in SDGs implementation and monitoring,,"MEPA
+AoG
+Geostat",FAO,,"2.1.1
+2.1.2
+2.3.1
+2.3.2
+2.5.1
+2.5.2
+2.a.1
+2.c.1
+5.a.1
+5.a.2
+14.4.1
+15.1.1
+15.2.1
+11.6.1",,,
+Targeted support for agricultural statistical innovation at FAO,,"MEPA 
+Geostat","FAO
+Bill and Melinda Gates Foundation (Donor)",,"2.3.1
+2.3.2",,,
+Support to MEPA in mainstreaming sustainable food and agriculture in the SDG nationalization process to accelerate SDG implementation,,MEPA,"FAO
+GIZ",,,,,
+Civil Society Support Programme in Abkhazia,January 2017- June 2019,Civil Society Sector,"UNDP
+EU
+",SDG 16,"16.6
+16.7",,,
+HORIZONS Abkhazia,June 2016-June 2021,"Abkhaz NGOs: 
+ALERT
+OYH 
+AMRA-2014 
+Sukhumi HIV AIDS Centre","UNDP
+USAID
+UNICEF 
+AAH","SDG3
+SDG4
+SDG5
+SDG8
+SDG17",n/a,,,
+ENPARD 3 Abkhazia,March 2018-April 2021,"Abkhaz NGOs: 
+Amilatt Resurskua 
+ALERT
+CIHBFF","UNDP 
+EU
+FAO
+DRC
+AAH","SDG1
+SDG2
+SDG5
+SDG12
+SDG15",n/a,,,
+VET-EU Abkhazia,February 2019-January 2022,TBC,"UNDP
+EU
+UNICEF
+FAO","SDG1
+SDG3
+SDG4
+SDG16",n/a,,,
+Sub-Regional PDA2,July 2018-April 2019,,UNDP,SDG16,n/a,,,
+Parliamentary Strengthening,Start:DMY End: DMY,Parliament of Georgia,"UNDP
+EU",SDG 16,"SDG 16.6.2.2
+SDG 16.6.2.3
+SDG 16.7.2 
+SDG 16.8.1",,,
+Governance Reform Fund (GRF),Start:05.12.2015 End: 31.12.2012,,"UNDP
+Government of Sweden","SDG1.5 
+SDG7.2
+SDG10.3
+SDG11.6
+SDG13.2
+SDG16.6. 
+SDG17.8","1.5.3 
+7.2.1.1 
+10.3 
+11.6.1 
+13.2 
+16.6.2.2 
+17.8.3",,,
+Innovation Facility,November 2018 -August 2019,"ServiceLab
+Forset
+Rustavi Hub","UNDP
+Un Women
+Danish Government through Innovation Facility",SDG5,5.1.1.,,,
+UN Joint Program for Gender Equality,November 2015 - December 2020,"Gender Equality Council of the Parliament of Georgia Municipal Service Providers Association
+Center for Strategic Research and Developmenmt Women Farmers Association","UNDP
+Government of Sweden",SDG 5,"5.4
+5.5
+5.a
+5.b
+5.c",,,
+UN JP on Human Rights,January 2016 - December 2019,"NHRSAP Inter-Agency
+Council and its secretariat
+The Personal Data Protection Inspector 
+Ministry of Justice
+government institutions on
+labour and child care
+Public Defender (Ombudsperson)
+The Parliamentary Committee on Human Rights and Civil Integration
+Parliamentary Committee on Legal Issues
+High School of Justice and Ministry of Internal Affairs
+high education institutions
+media","UNDP
+EU
+UNICEF
+OHCHR
+ILO","4.5
+ 51
+ 52
+ 8.5
+10.2
+10.3
+11.2
+ 11.7 
+16.3
+166
+16.7
+16.10
+16a
+16b 
+SDG17","4.a.1
+10.2.1
+10.3.1.1
+16.3.1.1
+16.6.2.2
+16.6.2.4
+16.6.2.6
+16.7.1
+16.7.2
+16.b.1
+16.b.1.1
+17.18.1
+17.18.2
+17.18.3",,,
+Support to Public Administration Reform/ GRF 2/UK,July 2016 - December 2020,"Civil Service Bureau
+Data Exchange Agency
+Administration of Government of Georgia","UNDP
+UKaid",SDG16.6,"16.6.2
+16.6.2.1
+16.2.2 
+16.6.2.9
+16.7.1",,,
+Fostering Local & Regional Development_Phase II,December 2017 - November 2021,"Ministry of Regional Development and Infrastructure of Georgia
+Parliament of Georgia Administration of the Government of Georgia
+Municipal Authorities
+National Association of Local Authorities
+Municipal Service Providers Association","UNDP
+SDC 
+ADA","SDG 1 Targets: 1.2 1.4
+SDG 5 Target: 5.1
+SDG 16 Targets: 16.6 16.7","1.2.1
+1.4.1
+5.1.1
+16.6.2
+ 16.6.2.9
+16.7.2
+16.7.2.1",,,
+Decentralization & Good Governance,March 2018 - March 2023,"Ministry of Regional Development and Infrastructure of Georgia
+Parliament of Georgia
+Administration of the Government of Georgia
+Tbilisi City Hall Municipal Authorities
+Civil Service Bureau National Association of Local Authorities
+Municipal Service Providers Association
+Womens Information Centre","UNDP
+Government of Denmark","SDG 5 Target: 5.5
+SDG 16 Targets: 16.5 16.6 16.7","5.5.1.1
+16.5.1.6
+16.5.2.1
+16.6.2
+16.6.2.3
+16.6.2.7
+16.6.2.8
+16.7.1
+16.7.1.2
+16.7.2
+16.7.2.1",,,
+Alternative Dispute Resolution-EU,January 2019 - December 2020,"Ministry of Justice High Council of Justice 
+High School of Justice
+Georgian Bar Association
+Georgian Association of Arbitrators
+Georgian Association of Mediators
+Georgian Interntional Arbitrtion Centre
+Tbilisi State University National Centre for ADR
+Arbitration Initiative Georgia","UNDP
+EU",SDG 16 / 16.3,16.3.1.1,,,
+Improving Rural Development in Georgia (ENPARD III),January 2018 - December 2022,"Ministry of Environmental Protection and Agriculture of Georgia
+Minsitry of Agriculture of Ajara AR","UNDP
+EU","SDG 2/2.3 
+SDG 15/15.2","2.3.2.1
+15.2.1",,,
+VET-Agriculture-SDC-phase 2,September 2018 - August 2022,"Ministry of Education Science Culture and Sports
+Ministry of Environment Protection and Agriculture","UNDP
+SDC
+ADA",SDG 4,"4.3.4
+4.4.5",,,
+Private Sector Development EU,February 2019 - January 2023,"Ministry of Economy and Sustainable Development
+Ministry of Environmental Protection and Agriculture","UNDP
+FAO 
+UNIDO
+EU",SDG 8,"8.2
+8.3
+8.8",,,
+4NR Support to GEF CBD Parties 2010 biodiversity targets,Start:DMY End: DMY,,,,,,,
+Green Cities Initiative_Achara,August 2015 - July 2019,"Ministry of Environmental Protection and Agriculture
+Government of Autonomous Republic of Ajara
+Batumi City Hall","UNDP
+Global Environmental Facility","SDG 3 
+SDG 7 
+SDG 11 
+SDG 13","3.6.1
+ 3.d.2
+7.1.2
+11.6.2
+13.2.1",,,
+CCCD in Georgia,Start:DMY End: DMY,,,,,,,
+Multi Hazard Early Warning/GCF,Start:DMY End: DMY,,,,,,,
+Multi Hazard Early Warning/SDC,December 2018 - November 2023,"Ministry of Environment Protection and Agriculture
+National Environmental Agency
+Emergency Management Service","UNDP
+GCF",SDG 13,13.2.1,,,
+PIMS 5946 SBUR and Fourth National Communic.to UNFCCC,Start:DMY End: DMY,"Ministry of Environment Protection and Agriculture
+National Environmental Agency
+Environmental Information and Education Center
+World Experience for Georgia","UNDP
+GEF",SDG 13,13.2.1,,,
+Protected Areas Financial Sustainability,Start:DMY End: DMY,,,,,,,
+Sustainable Cities,October 2018 -December 2019,"ServiceLab
+Forset
+Rustavi Hub
+Rustavi Mayor's Office","UNDP
+Urban Workshop Poland
+Orbeliani Platform
+Effect A.I. (In kind)","SDG 11
+SDG 10",11.6,,,
+HCFC Phase-Out Management Plan,Start:DMY End: DMY,,,,,,,`)
+// );
+// const clearOrg = 
+const sdgColors = ["", "#e5233d", "#dda73a", "#4ca146", "#c7212f", "#ee402d", "#28bfe6", "#fbc412", "#a31d44", "#f26a2e", "#df1a83", "#f89d2a", "#bf8d2c", "#407f46", "#1f97d4", "#59ba47", "#136a9f", "#14496b"]
+const parseCsv =  (collection, row) => { 
+    collection.intOrgs.push(...row.intOrgs.split('\n').map(cell => cell.replace(/(^")|("$)|(\.$)|(,$)|(:$)/g, "").trim().substr(0, 25)).filter(a => a));
+    collection.natOrgs.push(...row.natOrgs.split('\n').map(cell => cell.split('(')[0].replace(/(^")|("$)|(\.$)|(,$)|(:$)/g, "").trim().substr(0, 25)).filter(a => a));
+    collection.projects.push(row.project.substr(0, 25));
+    collection.natSdgs.push(...row.natSdgs.split('\n').map(cell => cell.split(' ')[0].replace(/(^")|("$)|(\.$)|(,$)|(:$)|( )/g, "").trim()).filter(a => a));
+    return collection;
+}
+
+const mapCsv = rxjs.operators.map(rows => rows.reduce(parseCsv, { intOrgs: [], natOrgs: [], projects: [], natSdgs: [] }));
+
+const mapRemoveDublicates = rxjs.operators.map(collcetions => ({intOrgs: [...new Set(collcetions.intOrgs)], natOrgs: [...new Set(collcetions.natOrgs)], projects: [...new Set(collcetions.projects)], natSdgs: [...new Set(collcetions.natSdgs)]}));
+
+
+am4core.useTheme(am4themes_animated);
+// am4core.options.autoSetClassName = true;
+var chart
+// dataStream
+//     // .pipe(mapCsv, mapRemoveDublicates)
+//     .subscribe((rows) => {
+        chart = am4core.create("chartdiv", am4charts.SankeyDiagram);
+        rows = rows.sort((a,b) => (!a.natSdgs || !b.natSdg) ? 0 : (+a.natSdgs[0].split('.')[0] > +b.natSdgs[0].split('.')[0]) ? 1 : ((+b.natSdgs[0].split('.')[0] > +a.natSdgs[0].split('.')[0]) ? -1 : 0))
+        rows.forEach(row => {
+            // if(chart.data.length >= 60) return;
+            let intOrgs = row.intOrgs.split('\n').map(cell => cell.replace(/(^")|("$)|(\.$)|(,$)|(:$)/g, "").trim().substr(0, 25)).filter(a => a);
+            let natOrgs = row.natOrgs.split('\n').map(cell => cell.split('(')[0].replace(/(^")|("$)|(\.$)|(,$)|(:$)/g, "").trim().substr(0, 25)).filter(a => a);
+            let project = row.project.substr(0, 25).trim();
+            let natSdgs = row.natSdgs.split('\n').map(cell => cell.split(' ')[0].replace(/(^")|("$)|(\.$)|(,$)|(:$)|( )/g, "").trim()).filter(a => a);
+
+            chart.data.push({ natSdg:-1, colorMode: 'toNode', toName: project, to: project, value: 1, nodeColor: "#0468b1"},)
+            
+            intOrgs.forEach(intOrg => {
+                chart.data.push({ nodeWidth: 200, type: 'intOrg', colorMode: 'fromNode', from: intOrg, to: project, value: 1, nodeColor: "#2bacb5", linkColor: "red", linkOpacity: .6 },)
+            })
+            natOrgs.forEach(natOrg => {
+                chart.data.push({ nodeWidth: 200, type: 'natOrg', colorMode: 'fromNode', from: natOrg, to: project, value: 1, nodeColor: "#e84d5b", linkColor: "red", linkOpacity: .6 },)
+            })
+            natSdgs.forEach(natSdg => {
+                chart.data.push({ nodeWidth: 30, level: 3, type: 'sdg', colorMode: 'toNode', locationX: -1, from: project, to: natSdg, value: 1, nodeColor: sdgColors[+natSdg.split('.')[0]], linkColor: sdgColors[+natSdg.split('.')[0]], linkOpacity: .6 },)
+            })
+        });
+        
+        // [...new Set(chart.data.filter(link => link.type == 'sdg'))].forEach(link => {
+        //     chart.data.push({ type: 'sdg-post', from: link.natSdg, nodeColor: sdgColors[+natSdg.split('.')[0]], linkColor: sdgColors[+natSdg.split('.')[0]], linkOpacity: .6 },)
+        // })
+        
+        
+        
+        console.log(chart)
+        // chart.data
+        // chart.data = chart.data.sort((a,b) => (a.type > b.type) ? 1 : ((b.type > a.type) ? -1 : 0)); 
+        // chart.data = chart.data.sort((a,b) => (+a.natSdg > +b.natSdg) ? 1 : ((+b.natSdg > +a.natSdg) ? -1 : 0)); 
+        // chart.data = chart.data.sort((a,b) => a.natSdg ? 1 : -1 ); 
+        // Configure data fields
+        chart.dataFields.fromName = "from";
+        chart.dataFields.toName = "to";
+        chart.dataFields.value = "value";
+        chart.dataFields.color = "nodeColor";
+        chart.dataFields.width = 'nodeWidth'
+        
+
+        // Configure nodes
+        var nodeTemplate = chart.nodes.template;
+        nodeTemplate.id = 'linkColor'
+        nodeTemplate.width = 150;
+        // nodeTemplate.color = am4core.color("#090909")
+        nodeTemplate.height = 20;
+        // nodeTemplate.nameLabel.locationX = 0.2;
+        nodeTemplate.nameLabel.label.fill = am4core.color("#fff");
+        nodeTemplate.nameLabel.label.fill
+        // nodeTemplate.nameLabel.label.fontWeight = "bold";
+        // nodeTemplate.nameLabel.adapter.add("width", (location, target) => {
+        //     switch (target.parent.level) {
+        //       case 1:
+        //         return 200;
+        //       default:
+        //         return 60;
+        //     }
+        //   });
+
+        nodeTemplate.nameLabel.adapter.add("locationX", (location, target) => {
+          switch (target.parent.dataItem.component.dataFields.type) {
+            case 'svg':
+              return -1;
+            default:
+              return 0;
+          }
+        });
+
+        // Configure links
+        var linkTemplate = chart.links.template;
+        linkTemplate.fill = am4core.color("#090909");
+        // linkTemplate.id = 'linkColor'
+        linkTemplate.propertyFields.colorMode = 'colorMode'
+        // linkTemplate.propertyFields.fill = am4core.color("#090909");
+        linkTemplate.propertyFields.fillOpacity = "linkOpacity";
+        linkTemplate.maxWidth = 100;
+    // });
+
+
+
+// chart.data = { "from": "A", "to": "D", "value": 1, "nodeColor": "#06D6A0", "linkColor": "#06D6A0", "linkOpacity": 1 },
+
+
+</script>
+    </body>
+</html>
+
