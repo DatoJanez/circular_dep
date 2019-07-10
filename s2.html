@@ -1,0 +1,399 @@
+<html>
+    <head>
+        <link href="https://fonts.googleapis.com/css?family=Heebo" rel="stylesheet">
+        <link href="https://unpkg.com/vue-multiselect@2.1.4/dist/vue-multiselect.min.css" rel="stylesheet">
+        <link href="main.css" rel="stylesheet">
+    </head>
+    <body>
+        <div class="multi-cont-j">
+            <div class="multi-j" id="projects"></div>
+            <div class="multi-j" id="int-orgs"></div>
+            <div class="multi-j" id="nat-orgs"></div>
+            <div class="multi-j" id="nat-sdgs"></div>
+        </div>
+        <div id="chartdiv"></div>
+        <!-- <script src="https://unpkg.com/d3-array@1"></script>
+        <script src="https://unpkg.com/d3-collection@1"></script>
+        <script src="https://unpkg.com/d3-path@1"></script>
+        <script src="https://unpkg.com/d3-shape@1"></script>
+        <script src="https://unpkg.com/d3-sankey@0"></script>
+        <script src="https://unpkg.com/d3-format@1"></script> -->
+        <!-- <script src="https://unpkg.com/d3-scale@1"></script> -->
+        
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/rxjs/6.4.0/rxjs.umd.min.js"></script>
+        <script src="https://d3js.org/d3-dsv.v1.min.js"></script>
+        <script src="https://unpkg.com/d3-fetch@1"></script>
+
+        <script src="https://www.amcharts.com/lib/4/core.js"></script>
+        <script src="https://www.amcharts.com/lib/4/charts.js"></script>
+        <script src="https://www.amcharts.com/lib/4/themes/animated.js"></script>
+        
+        <!-- <script src="https://www.amcharts.com/lib/3/amcharts.js"></script>
+        <script src="https://www.amcharts.com/lib/3/serial.js"></script>
+        <script src="https://www.amcharts.com/lib/3/plugins/export/export.min.js"></script> -->
+        
+
+        <!-- <script src="https://www.amcharts.com/lib/4/core.js"></script>
+        <script src="https://www.amcharts.com/lib/4/charts.js"></script>
+        <script src="https://www.amcharts.com/lib/4/themes/dark.js"></script>
+        <script src="https://www.amcharts.com/lib/4/themes/animated.js"></script> -->
+        <!-- <script src="index.js"></script> -->
+        <script>
+        var select = (name, values, title) => {
+    const cont = document.getElementById(name)
+    
+    const options = [];
+    // const values = values;
+    let state = []
+    let state$ = new rxjs.BehaviorSubject([]);
+    const setValue = (value, bool) => {
+        bool ? state.push(value) : state = state.filter(single => single !== value);
+        state$.next(state);
+    }
+
+    
+    
+    const alloption = document.createElement('div');
+    alloption.innerHTML = title;
+    alloption.setAttribute('data-active', 0);
+    alloption.addEventListener('click', (e) => {
+        let nextVal = !Boolean(Number(alloption.getAttribute('data-active')));
+        alloption.setAttribute('data-active', nextVal ? '1' : '0');
+        // state = ;
+        state$.next(nextVal ? values : []);
+    });
+    options.push({ name: 'all', dom: alloption} );
+    cont.appendChild(alloption);
+    
+    const innerCont = document.createElement('div')
+    cont.appendChild(innerCont)
+
+    values.forEach(value => {
+        const option = document.createElement('div');
+        option.innerHTML = value;
+        option.setAttribute('data-value', value);
+        option.setAttribute('data-active', 0);
+        option.addEventListener('click', (e) => {
+            let nextVal = !Boolean(Number(option.getAttribute('data-active')));
+            option.setAttribute('data-active', nextVal ? '1' : '0');
+            setValue(value, nextVal);
+        });
+        options.push({ name: value, dom: option} );
+        innerCont.appendChild(option);
+    });
+
+    state$.subscribe(allValues => {
+        state.forEach(st => options.filter(opt => opt.name == st)[0].dom.setAttribute('data-active', 0) )
+        allValues.forEach(st => options.filter(opt => opt.name == st)[0].dom.setAttribute('data-active', 1) ) 
+        state = allValues;
+        if(state.length == values.length) options.filter(opt => opt.name == 'all')[0].dom.setAttribute('data-active', 1)
+        if(state.length == 0) options.filter(opt => opt.name == 'all')[0].dom.setAttribute('data-active', 0)
+    })
+    state$.next(values)
+    return state$;
+}
+
+// const dataStream1 = rxjs.from(d3.csv("sdg.csv"));
+var form;
+
+
+</script>
+        <script>
+        var chart;
+var rowsClean;
+const initFull = () => {
+    chart = am4core.create("chartdiv", am4charts.ChordDiagram);
+ 
+    uniq.projects.forEach( project => {
+        chart.data.push({ category:'aaaa', type: 'aa', colorMode: 'toNode', toName: project, to: project, nodeColor: "#367993"})
+    }) 
+    
+    uniq.intOrgs.forEach( intOrg => {
+        chart.data.push({ category:'bbb', type: 'bb',colorMode: 'toNode', toName: intOrg, to: intOrg, nodeColor: "#33b7a9"})
+    }) 
+
+    uniq.natOrgs.forEach( natOrg => {
+        chart.data.push({ category:'ccc', type: 'cc',colorMode: 'toNode', toName: natOrg, to: natOrg, nodeColor: "#cc4e48"})
+    }) 
+ 
+
+    uniq.natSdgs.forEach( natOrg => {
+        chart.data.push({ category:'ddd' , orderByField: natOrg.split('.')[0], colorMode: 'toNode', to: natOrg, value: 10, nodeColor: sdgColors[+natOrg.split('.')[0]]})
+    }) 
+
+    rowsClean = rows.map(row => ({
+        intOrgs : row.intOrgs.split('\n').map(cell => cell.replace(/(^")|("$)|(\.$)|(,$)|(:$)/g, "").trim().substr(0, 25)).filter(a => a),
+        natOrgs : row.natOrgs.split('\n').map(cell => cell.split('(')[0].replace(/(^")|("$)|(\.$)|(,$)|(:$)/g, "").trim().substr(0, 25)).filter(a => a),
+        project : row.project.substr(0, 25).trim(),
+        natSdgs : row.natSdgs.split('\n').map(cell => cell.split(' ')[0].replace(/(^")|("$)|(\.$)|(,$)|(:$)|( )/g, "").trim()).filter(a => a)
+    }) )
+    // var dd = [];
+    rowsClean.forEach(row => {
+        // if(chart.data.length >= 60) return;
+        row.intOrgs.forEach(intOrg => {
+            chart.data.push({ type: 'intOrg', colorMode: 'fromNode', from: intOrg, to: row.project, value: 10, nodeColor: "#2bacb5"  },)
+        })
+        row.natOrgs.forEach(natOrg => {
+            chart.data.push({  type: 'natOrg', colorMode: 'fromNode', from: natOrg, to: row.project, value: 10, nodeColor: "#e84d5b" },)
+        })
+        row.natSdgs.forEach(natSdg => {
+            chart.data.push({  type: natSdg.replace('SDG', '').split('.')[0], colorMode: 'toNode', from: natSdg.replace('SDG', ''), to: row.project, value: 10, nodeColor: sdgColors[+natSdg.split('.')[0]]  },)
+        })
+    });
+
+}
+
+const drowChart = () => {
+
+    chart.dataFields.fromName = "from";
+    chart.dataFields.toName = "to";
+    chart.dataFields.value = "value";
+    chart.dataFields.category = "color";
+    chart.dataFields.color = "color";
+    chart.dataFields.category = 'category'
+    chart.nodePadding = 0;
+    chart.nodePadding = 0.5;
+    chart.minNodeSize = 0;
+    chart.minNodeSize = 0.001;
+    chart.startAngle = 270;
+    chart.endAngle = chart.startAngle + 360;
+    chart.sortBy = "type";
+    chart.fontSize = 10;
+    chart.orderByField = 'type'
+    chart.innerRadius = am4core.percent(85)
+
+
+    var nodeTemplate = chart.nodes.template;
+    // nodeTemplate.readerTitle = "Click to show/hide or drag to rearrange";
+    nodeTemplate.showSystemTooltip = false;
+    nodeTemplate.propertyFields.fill = "color";
+    nodeTemplate.tooltipText = "{name}'s kisses: {total}";
+
+    nodeTemplate.fillOpacity = .6;
+
+    var hoverState = nodeTemplate.states.create("hover");
+    hoverState.properties.fillOpacity = 1;
+
+
+    // when rolled over the node, make all the links rolled-over
+    nodeTemplate.events.on("over", function(event) {    
+        var node = event.target;
+        node.outgoingDataItems.each(function(dataItem) {
+            if(dataItem.toNode){
+                dataItem.link.isHover = true;
+                dataItem.toNode.label.isHover = true;
+            }
+        })
+        node.incomingDataItems.each(function(dataItem) {
+            if(dataItem.fromNode){
+                dataItem.link.isHover = true;
+                dataItem.fromNode.label.isHover = true;
+            }
+        }) 
+
+        node.label.isHover = true;   
+    })
+
+    // when rolled out from the node, make all the links rolled-out
+    nodeTemplate.events.on("out", function(event) {
+        var node = event.target;
+        node.outgoingDataItems.each(function(dataItem) {        
+            if(dataItem.toNode){
+                dataItem.link.isHover = false;                
+                dataItem.toNode.label.isHover = false;
+            }
+        })
+        node.incomingDataItems.each(function(dataItem) {
+            if(dataItem.fromNode){
+                dataItem.link.isHover = false;
+            dataItem.fromNode.label.isHover = false;
+            }
+        })
+
+        node.label.isHover = false;
+    })
+
+    var label = nodeTemplate.label;
+    label.relativeRotation = 90;
+
+    label.fillOpacity = 0.7;
+    let labelHS = label.states.create("hover");
+    labelHS.properties.fillOpacity = 1;
+
+    nodeTemplate.cursorOverStyle = am4core.MouseCursorStyle.pointer;
+
+    var linkTemplate = chart.links.template;
+    linkTemplate.strokeOpacity = 0;
+    linkTemplate.fillOpacity = .4;
+    linkTemplate.tooltipText = "{fromName} & {toName}:{value.value}";
+
+    var hoverState = linkTemplate.states.create("hover");
+    hoverState.properties.fillOpacity = 1;
+    hoverState.properties.strokeOpacity = 1;
+
+
+
+    chart.dataFields.fromName = "from";
+    chart.dataFields.toName = "to";
+    chart.dataFields.value = "value";
+    chart.dataFields.color = "nodeColor";
+}
+
+const filterChart = ([activeIntOrgs, activeNatOrgs, activeProjects, activeNatSdgs]) => {
+    chart = am4core.create("chartdiv", am4charts.ChordDiagram);
+ 
+    uniq.projects.filter(a => activeProjects.indexOf(a) !== -1 ).forEach( project => {
+        chart.data.push({ category:'aaaa', type: 'aa', colorMode: 'toNode', toName: project, to: project, nodeColor: "#367993"})
+    }) 
+    
+    uniq.intOrgs.filter(a => activeIntOrgs.indexOf(a) !== -1 ).forEach( intOrg => {
+        chart.data.push({ category:'bbb', type: 'bb',colorMode: 'toNode', toName: intOrg, to: intOrg, nodeColor: "#33b7a9"})
+    }) 
+
+    uniq.natOrgs.filter(a => activeNatOrgs.indexOf(a) !== -1 ).forEach( natOrg => {
+        chart.data.push({ category:'ccc', type: 'cc',colorMode: 'toNode', toName: natOrg, to: natOrg, nodeColor: "#cc4e48"})
+    }) 
+ 
+
+    uniq.natSdgs.filter(a => activeNatSdgs.indexOf(a) !== -1 ).forEach( natOrg => {
+        chart.data.push({ category:'ddd' , orderByField: natOrg.split('.')[0], colorMode: 'toNode', to: natOrg, value: 10, nodeColor: sdgColors[+natOrg.split('.')[0]]})
+    }) 
+
+
+    // var dd = [];
+    rowsClean.forEach(row => {
+        // if(chart.data.length >= 60) return;
+        if(activeProjects.indexOf(row.project) === -1) {
+            row.intOrgs.filter(intOrg => activeIntOrgs.indexOf(intOrg) !== -1 ).forEach(intOrg => {
+                row.natSdgs.filter(natSdg => activeNatSdgs.indexOf(natSdg) !== -1 ).forEach(natSdg => {
+                    chart.data.push({  type: natSdg.replace('SDG', '').split('.')[0], colorMode: 'toNode', from: natSdg.replace('SDG', ''), to: intOrg, value: 10, nodeColor: sdgColors[+natSdg.split('.')[0]]  },)
+                })
+            })
+            row.natOrgs.filter(natOrg => activeNatOrgs.indexOf(natOrg) !== -1 ).forEach(natOrg => {
+                row.natSdgs.filter(natSdg => activeNatSdgs.indexOf(natSdg) !== -1 ).forEach(natSdg => {
+                    chart.data.push({  type: natSdg.replace('SDG', '').split('.')[0], colorMode: 'toNode', from: natSdg.replace('SDG', ''), to: natOrg, value: 10, nodeColor: sdgColors[+natSdg.split('.')[0]]  },)
+                })
+            })
+            
+            return;
+        }
+
+        row.intOrgs.filter(intOrg => activeIntOrgs.indexOf(intOrg) !== -1 ).forEach(intOrg => {
+            chart.data.push({ type: 'intOrg', colorMode: 'fromNode', from: intOrg, to: row.project, value: 10, nodeColor: "#2bacb5"  },)
+        })
+        row.natOrgs.filter(natOrg => activeNatOrgs.indexOf(natOrg) !== -1 ).forEach(natOrg => {
+            chart.data.push({  type: 'natOrg', colorMode: 'fromNode', from: natOrg, to: row.project, value: 10, nodeColor: "#e84d5b" },)
+        })
+        row.natSdgs.filter(natSdg => activeNatSdgs.indexOf(natSdg) !== -1 ).forEach(natSdg => {
+            chart.data.push({  type: natSdg.replace('SDG', '').split('.')[0], colorMode: 'toNode', from: natSdg.replace('SDG', ''), to: row.project, value: 10, nodeColor: sdgColors[+natSdg.split('.')[0]]  },)
+        })
+    });
+    
+    drowChart()
+}
+
+
+        </script>
+        <script >
+       
+// const clearOrg = 
+const sdgColors = ["", "#e5233d", "#dda73a", "#4ca146", "#c7212f", "#ee402d", "#28bfe6", "#fbc412", "#a31d44", "#f26a2e", "#df1a83", "#f89d2a", "#bf8d2c", "#407f46", "#1f97d4", "#59ba47", "#136a9f", "#14496b"]
+const parseCsv =  (collection, row) => { 
+    collection.intOrgs.push(...row.intOrgs.split('\n').map(cell => cell.replace(/(^")|("$)|(\.$)|(,$)|(:$)/g, "").trim().substr(0, 25)).filter(a => a));
+    collection.natOrgs.push(...row.natOrgs.split('\n').map(cell => cell.split('(')[0].replace(/(^")|("$)|(\.$)|(,$)|(:$)/g, "").trim().substr(0, 25)).filter(a => a));
+    collection.projects.push(row.project.substr(0, 25));
+    collection.natSdgs.push(...row.natSdgs.split('\n').map(cell => cell.replace('SDG', '').split(' ')[0].replace(/(^")|("$)|(\.$)|(,$)|(:$)|( )/g, "").trim()).filter(a => a));
+    return collection;
+}
+
+const mapCsv = rxjs.operators.map(rows => rows.reduce(parseCsv, { intOrgs: [], natOrgs: [], projects: [], natSdgs: [] }));
+
+const mapRemoveDublicates = rxjs.operators.map(collcetions => ({intOrgs: [...new Set(collcetions.intOrgs)], natOrgs: [...new Set(collcetions.natOrgs)], projects: [...new Set(collcetions.projects)], natSdgs: [...new Set(collcetions.natSdgs)]}));
+
+const sortSdgs = (a,b) => {
+    var aint = +(a.split('.')[0])
+    var bint = +(b.split('.')[0])
+    // console.log(aint, bint);
+    var l = aint > bint
+                ? 1 
+                : bint > aint 
+                    ? -1 
+                    : 0; 
+    // console.log(l);
+    return l;
+}
+
+am4core.useTheme(am4themes_animated);
+
+
+// am4core.options.autoSetClassName = true;
+
+// am4core.useTheme(am4themes_animated);
+// chart.colors.saturation = 0.45;
+// chart.colors.step = 2;
+
+// var chart
+var rows
+var uniq
+const dataStream11 = (rowsIn) => {
+    rows = rowsIn;
+    // chart = am4core.create("chartdiv", am4charts.SankeyDiagram);
+    uniq = rows.filter(s => s.natSdgs != 'n/a').reduce(parseCsv, { intOrgs: [], natOrgs: [], projects: [], natSdgs: [] })
+    uniq = {
+        intOrgs: [...new Set(uniq.intOrgs)],
+        natOrgs: [...new Set(uniq.natOrgs)], 
+        projects: [...new Set(uniq.projects)], 
+        natSdgs: [...new Set(uniq.natSdgs)]
+    };
+    uniq = {
+        intOrgs: uniq.intOrgs.sort(),
+        natOrgs: uniq.natOrgs.sort(), 
+        projects: uniq.projects.sort(), 
+        natSdgs: uniq.natSdgs.sort(sortSdgs)
+    };
+    initFull()
+    drowChart();
+    form = {
+        intOrgs$: select('int-orgs', uniq.intOrgs, 'International Organisations'), 
+        natOrgs$: select('nat-orgs', uniq.natOrgs, 'National Organisations'), 
+        projects$: select('projects', uniq.projects, 'Progects'), 
+        natSdgs$: select('nat-sdgs', uniq.natSdgs, 'SDGs')
+    }
+    
+    rxjs.combineLatest([form.intOrgs$, form.natOrgs$, form.projects$, form.natSdgs$])
+        .subscribe(filterChart)
+};
+
+// The Ministry of Environment Protection and Agriculture	MEPA
+
+The Ministry of Internally Displaced Persons from Occupied Territories, Labour, Health and Social Affairs 	MoIDPLHSA
+The National Centre for Disese Control and Public Heatlh 	NCDC
+// The Office of the Public Defender of Georgia 	PDO
+The Government of Georgia 	GoG
+// The AoG	AoG
+// Network of Centers for Civic Engagement 	NCCE
+The High School of Justice 	HSoJ
+The Ministry of Internal Affairs of Georgia	MIA
+The Ministry of Justice of Georgia	MoJ
+High Council of Justice	HCoJ
+The Georgian Bar Association	GBA
+The Georgian Interntional Arbitrtion Centre	GIAC
+The Ministry of Education, Science, Culture and Sport of Georgia	MoESCS
+Civil Society Organizations 	CSOs
+Georgian Trade Unions Confederation 	GTUC
+Geogian Employers Association 	GEA
+Tripartite Social Partnershp Commission 	TSPC
+
+
+
+dataStream11([{"project":"Reduction and Prevention of Statelessness in Georgia","dates":"January – December 2018","natOrgs":"Innovations and Reforms Center (NGO)","intOrgs":"UNHCR","gsdg":"SDG16/\n16.b  Promote and enforce non-discriminatory laws and policies for sustainable development\n16.9  By 2030- provide legal identity for all- including birth registratio","natSdgs":"16.9.1\n16.b.1","m":"1961 Convention on the Reduction of Statelessness                        1954 Convention relating to the Status of Stateless Persons                      1989 Convention on the Rights of the Child     1966 International Covenant on Civil and Political Rights                              "," ":""},{"project":"Free Legal Aid for Internally Displaced Persons (IDPs) in Georgia","dates":"January 2018 – December 2018","natOrgs":"Consortium Legal Aid Georgia (NGO) ","intOrgs":"UNHCR","gsdg":"SDG16/16.3  Promote the rule of law at the national and international levels and ensure equal access to justice for all","natSdgs":"16.10.2.a\n16.3.1","m":""," ":""},{"project":"Supporting Durable Solutions for Refugees and Humanitarian Status Holders in Georgia","dates":"October – December- 2018","natOrgs":"Public Advocacy (NGO)","intOrgs":"UNHCR","gsdg":"SDG4/4.1  By 2030- ensure that all girls and boys complete free- equitable and quality primary and secondary education leading to relevant and effective learning outcomes \n\n4.5  By 2030- eliminate gender disparities in education and ensure equal access to all levels of education and vocational training for the vulnerable- including persons with disabilities and children in vulnerable situations\n\nSDG8/8.5  By 2030- achieve full and productive employment and decent work for all women and men- including for young people and persons with disabilities- and equal pay for work of equal value","natSdgs":"4.1.1\n4.5.1\n8.5.2","m":"1989 Convention on the Rights of the Child        1966 Covenant on Economic- Social and Cultural rights. 1965 International Convention on the Elimination of All Forms of Racial Discrimination "," ":""},{"project":"Support to the Office of the Public Defender (Ombudsman) to Enhance its Capacity to Address the Situation of Asylum Seekers and Persons granted International Protection in Georgia ","dates":"January 2018 – December 2018","natOrgs":"The Office of the Public Defender (Ombudsman) of Georgia (National partner)","intOrgs":"UNHCR","gsdg":"SDG16/16.3  Promote the rule of law at the national and international levels and ensure equal access to justice for all","natSdgs":"16.10.2.a. Population access to open data increased \n16.3.1: Proportion of victims of violence in the previous 12 months who reported their victimization to competent authorities or other officially recognized conflict resolution mechanisms","m":"1951 Convention relating to the Status of Refugees"," ":""},{"project":"Prevention and Elimination of SGBV in Refugee  community","dates":"January 2018 – December 2018","natOrgs":"Sakhli-Advice Centre for Women (NGO)","intOrgs":"UNHCR","gsdg":"SDG5/\n5.1  End all forms of discrimination against all women and girls everywhere\n5.2  Eliminate all forms of violence against all women and girls in the public and private spheres- including trafficking and sexual and other types of exploitation","natSdgs":"5.1.3. Existence of the National Action Plan for Combating Violence against Women and Domestic Violence- which is implemented under a specific budget and which implementation is subject to monitoring\n5.1.4 Pursuant to national legislation- non-discrimination against women is governed in conformity with the international standards by 2022- majority of CEDAW Committee recommendations fulfilled- in the direction of the enforcement of non-discrimination legislation\n5.2.1: Proportion of ever-partnered women and girls aged 15-64 years subjected to physical- sexual or psychological violence by a current or former intimate partner over the past 12 months- by form of violence and by age\n5.2.2: Proportion of women and girls aged 15-64 years  subjected to sexual violence by persons other than an intimate partner over the past 12 months- by age and place of occurrence ","m":"1979 Convention on the  Elimination of all forms of Discrimination against women    1965 International Convention on the Elimination of All Forms of Racial Discrimination   "," ":""},{"project":"Protecting and empowering refugees- asylum-seekers and humanitarian status holders in Georgia","dates":"January 2018 – December 2018","natOrgs":"United Nations Associtation of Georgia (NGO)","intOrgs":"UNHCR","gsdg":"SDG16/16.3  Promote the rule of law at the national and international levels and ensure equal access to justice for all\n\nSDG4/4.1  By 2030- ensure that all girls and boys complete free- equitable and quality primary and secondary education leading to relevant and effective learning outcomes\n4.5  By 2030- eliminate gender disparities in education and ensure equal access to all levels of education and vocational training for the vulnerable- including persons with disabilities and children in vulnerable situations\n","natSdgs":"16.10.2.a. Population access to open data increased \n16.3.1: Proportion of victims of violence in the previous 12 months who reported their victimization to competent authorities or other officially recognized conflict resolution mechanisms\n\n4.1.1 By 2030- 100% of children have access to primary and secondary education. 100% of children are included in the General Education sector. All children possess basic reading and mathematics skills\n\n4.5.1 By 2030- equal participation of men and women in general- vocational and higher education system ensured ","m":"1951 Convention Relating to the Status of Refugees 1989 Convention on the Rights of the Child    1966 International Covenant on Civil and Political Rights          1966 Covenant on Economic- Social and Cultural rights.     "," ":""},{"project":"Developing Georgian language audio lessons for  Integration of persons under international protection- Asylum seekers and other POCs in Georgia","dates":"September - December- 2018","natOrgs":"Zhvania School of Public Administration (National partner)","intOrgs":"UNHCR","gsdg":"SDG4/4.1  By 2030- ensure that all girls and boys complete free- equitable and quality primary and secondary education leading to relevant and effective learning outcomes\n\n4.5  By 2030- eliminate gender disparities in education and ensure equal access to all levels of education and vocational training for the vulnerable- including persons with disabilities and children in vulnerable situations","natSdgs":"4.1.1 By 2030- 100% of children have access to primary and secondary education. 100% of children are included in the General Education sector. All children possess basic reading and mathematics skills\n\n4.5.1 By 2030- equal participation of men and women in general- vocational and higher education system ensured ","m":"1989 Convention on the Rights of the Child    "," ":""},{"project":"Public Service Development Agency","dates":"January - December- 2018","natOrgs":"Government ","intOrgs":"UNHCR","gsdg":"SDG16/\n\n16.9  By 2030- provide legal identity for all- including birth registration                                                                      16.10  Ensure continuous public access to information and protect fundamental freedoms- in accordance with national legislation and international agreements","natSdgs":"16.9.1 Number of homeless children provided with the personal identification document- including temporary identification card                                                            16.10.2.b. At least 64 community centers are operating at full capacity. Through these centers- local population have access to over 200 public and private services","m":"1961 Convention on the Reduction of Statelessness                        1954 Convention relating to the Status of Stateless Persons                      1989 Convention on the Rights of the Child     1966 International Covenant on Civil and Political Rights                              "," ":""},{"project":"Ministry of Internally Displaced Persons from Occupied Territories- Accommodation and Refugees of Georgia (MRA)  and Ministry of Internal Affairs (MIA)","dates":"January - July 2018 (MRA) and August-December 2018 (MIA)","natOrgs":"Government ","intOrgs":"UNHCR","gsdg":"SDG16/16.3  Promote the rule of law at the national and international levels and ensure equal access to justice for all","natSdgs":"16.10.2.a. Population access to open data increased 16.3.1: Proportion of victims of violence in the previous 12 months who reported their victimization to competent authorities or other officially recognized conflict resolution mechanisms","m":"1951 Convention Relating to the Status of Refugees 1989 Convention on the Rights of the Child    1966 International Covenant on Civil and Political Rights          1966 Covenant on Economic- Social and Cultural rights.     "," ":""},{"project":"Tbilisi City Court and Court of Appeal ","dates":"January- December 2018","natOrgs":"Government ","intOrgs":"UNHCR","gsdg":"SDG16/16.3  Promote the rule of law at the national and international levels and ensure equal access to justice for all","natSdgs":"16.10.2.a. Population access to open data increased 16.3.1: Proportion of victims of violence in the previous 12 months who reported their victimization to competent authorities or other officially recognized conflict resolution mechanisms","m":"1951 Convention Relating to the Status of Refugees 1989 Convention on the Rights of the Child    1966 International Covenant on Civil and Political Rights          1966 Covenant on Economic- Social and Cultural rights.     "," ":""},{"project":"Supporting agricultural livelihood activities of PoCs to UNHCR in Abkhazia","dates":"October – December 2018","natOrgs":"Action Against Hunger (INGO)","intOrgs":"UNHCR","gsdg":"SDG8/8.5  By 2030- achieve full and productive employment and decent work for all women and men- including for young people and persons with disabilities- and equal pay for work of equal value","natSdgs":"8.5.2 Unemployment rate by 2030 - 9.5%","m":"1966 Covenant on Economic- Social and Cultural Rights"," ":""},{"project":"Information and legal support to vulnerable groups of the Eastern and other regions of Abkhazia ","dates":"January 2018 – December 2018","natOrgs":"Centre for Humanitarian Programs (NGO)","intOrgs":"UNHCR","gsdg":"SDG16/\n16.3  Promote the rule of law at the national and international levels and ensure equal access to justice for all 16.10  Ensure public access to information and protect fundamental freedoms- in accordance with national legislation and international agreements","natSdgs":"16.10.2.a. Population access to open data increased \n16.3.1: Proportion of victims of violence in the previous 12 months who reported their victimization to competent authorities or other officially recognized conflict resolution mechanisms","m":"1966 International Covenant on Civil and Political Rights     "," ":""},{"project":"Improving livelihoods and Access to Education for Persons of Concern to UNHCR in Eastern Abkhazia","dates":"January 2018 – December 2018","natOrgs":"Danish Refugee Council (INGO)","intOrgs":"UNHCR","gsdg":"SDG4/4.5  By 2030- eliminate gender disparities in education and ensure equal access to all levels of education and vocational training for the vulnerable- including persons with disabilities and children in vulnerable situations\n\nSDG8/8.5  By 2030- achieve full and productive employment and decent work for all women and men- including for young people and persons with disabilities- and equal pay for work of equal value","natSdgs":"4.5.1 By 2030- equal participation of men and women in general- vocational and higher education system ensured \n\n8.5.2 Unemployment rate by 2030 - 9.5%","m":"1966 International Covenant on Civil and Political Rights          1979 Convention on the  Elimination of all forms of Discrimination against women                      2006 Convention on the Rights of persons with Disabilities."," ":""},{"project":"Improving Educational Infrastructure for Multi-ethnic Youth in Abkhazia","dates":"March 2018 – September 2018","natOrgs":"","intOrgs":"EU \nUNDP \nUNICEF \nUNHCR","gsdg":"SDG4/4.1  By 2030- ensure that all girls and boys complete free- equitable and quality primary and secondary education leading to relevant and effective learning outcomes\n\n4.5  By 2030- eliminate gender disparities in education and ensure equal access to all levels of education and vocational training for the vulnerable- including persons with disabilities and children in vulnerable situations","natSdgs":"4.1.1 By 2030- 100% of children have access to primary and secondary education. 100% of children are included in the General Education sector. All children possess basic reading and mathematics skills\n\n4.5.1 By 2030- equal participation of men and women in general- vocational and higher education system ensured ","m":"1989 Convention on the Rights of the Child          1966 Covenant on Economic- Social and Cultural rights.     "," ":""},{"project":"Addressing Violence against Women and Girls in Abkhazia ","dates":"January 2018 – December 2018","natOrgs":"","intOrgs":"UNHCR\nUN Women","gsdg":"SDG5/\n5.1  End all forms of discrimination against all women and girls everywhere\n5.2  Eliminate all forms of violence against all women and girls in the public and private spheres- including trafficking and sexual and other types of exploitation","natSdgs":"5.1.3. Existence of the National Action Plan for Combating Violence against Women and Domestic Violence- which is implemented under a specific budget and which implementation is subject to monitoring\n5.1.4 Pursuant to national legislation- non-discrimination against women is governed in conformity with the international standards by 2022- majority of CEDAW Committee recommendations fulfilled- in the direction of the enforcement of non-discrimination legislation\n5.2.1: Proportion of ever-partnered women and girls aged 15-64 years subjected to physical- sexual or psychological violence by a current or former intimate partner over the past 12 months- by form of violence and by age\n5.2.2: Proportion of women and girls aged 15-64 years  subjected to sexual violence by persons other than an intimate partner over the past 12 months- by age and place of occurrence ","m":"1979 Convention on the  Elimination of all forms of Discrimination against women      "," ":""},{"project":"Sexual and reproductive health","dates":"","natOrgs":"Health and Social Issues Committee of the Parliament of Georgia\nAoG\nTerritories Labour Health and Social Affairs (MoH) \nNational Centre for Disese Control and Public Health (NCDC)\nMinistry of Education Science Culture and Sport of Georgia\nTbilisi State Medical University\nAssociation of Obstetrics and Gynecologists \nCentre for Information and Councelling on RH Tanadgoma \nAtinati \nNCCE \nUnion Tanadgoma ","intOrgs":"WHO\nUNICEF \nEuTEACH \nEEIRH \nICCPA \nIFCPC\nCzech development agency.\nUNFPA","gsdg":"","natSdgs":"3.1.1 Maternal mortality ratio\n3.1.2 Proportion of birth attended by skilled personnel\n3.3.1 Number of new HIV infections per 1000 uninfected population by sex age and key populations \n3.7.1 Proportion of women of reproductive age who have their need for family planning satisfied with modern methods\n3.8.1 Average coverage of essential services based on 4 tracer indicators in each of 4 categories: reproductive maternal newborn and child health infectious disease non-communicable diseases service capacity and access (contributing to reproductive and maternal health areas)\n5.6.2 Number of countries with laws and regulations that guarantee women aged 15–49 access to sexual and reproductive health care information and education\n17.18.1 ","m":""," ":""},{"project":"Gender equality and women’s empowerment","dates":"","natOrgs":"Gender Equality Council of the Parliament\nMinistry of Ingernally Displaced Persons from Occupied  Territories Labour Health and Social Affairs (MoH) \nNational Centre for Disese Control and Public Heatlh (NCDC)\nMinistry of Education Science Culture and Sport of Georgia\nInter-Agency Commission on Gender Equlaity Violence Against Women and Domstic Violence\nLocal governents and municipalities in target regions\nSapari Century 21st ","intOrgs":"UNDP\nUN Women\nUNFPA","gsdg":"","natSdgs":"5.1.1.  თანასწორობისა და სქესის ნიშნით დისკრიმინაციის არარსებობის ხელშეწყობის აღსრულებისა და მონიტორინგის მიზნით საერთაშორისო სტანდართებთან შესაბამისი კანონმდებლობის არსებობა\n5.1.1.1 ქალთა დისკრიმინაციის აღმოფხვრის კომიტეტის წინა საანგარიშგებო ციკლის დასკვნითი შენიშვნების პროცენტული რაოდენობა რომლებიც  განხორციელდა\n3.7.2 Adolescent birth rate (aged 10-14 aged 15-19) per 1000 women of that age group\n5.3.1 Proportion of women aged 20-24 who were married or in a union before age 15 and before age 18\n5.3.1.1. გოგონების რაოდენობა რომლებმაც სკოლა ქორწინების გამო დატოვეს\n5.6.1 Proportion of women aged 15-49 years who make their own informed decisions regarding sexual relations contraceptive use and reproductive health care \n5.6.2 Number of countries with laws and regulations that guarantee women aged 15–49 access to sexual and reproductive health care information and education","m":""," ":""},{"project":"Population dynamics","dates":"","natOrgs":"Health and Social Issues Committee of the Parliament of Georgia\nGeostat \nAoG\nISET \nLocal municipalities in target regions","intOrgs":"UNECE\nUNFPA","gsdg":"","natSdgs":"17.19.2.a\n17.19.2.b","m":""," ":""},{"project":"UN Joint Programme for Gender Equality","dates":"","natOrgs":"Gender Equality Council of the Parliament\nMinistry of Ingernally Displaced Persons from Occupied  Territories Labour Health and Social Affairs (MoH) \nNational Centre for Disese Control and Public Heatlh (NCDC)\nMinistry of Education Science Culture and Sport of Georgia\nGender Equality Council of the Parliament:\nInter-Agency Commission on Gender Equlaity Violence Against Women and Domstic Violence\nTbilisi State Medical University\nLocal government and Municipalities in Kakheti and Samegrelo Region local Gender Equality Councils\nCentre for Information and Councelling on RH Tanadgoma \nAtinati \nNCCE \nGYDEA \nWe Care  ","intOrgs":"UNDP \nUN Women \nWB\nPromundoUS\nUNFPA","gsdg":"","natSdgs":"3.7.2\n5.1.1\n5.1.1.1\n5.3.1\n5.3.1.1\n5.6.1\n5.6.2\n4.7.1\n4.7.1.a\n4.7.1.b\n4.7.1.c\n4.7.1.d\n4.g.1\n8.6.1 ","m":""," ":""},{"project":"Global Programme for Prevention of Son Preference and Undervaluing of Girls","dates":"","natOrgs":"Inter-Agency Commission on Gender Equlaity Violence Against Women and Domstic Violence\nMinistry of Justice - Public Service Development Agency\nLocal government and Municipalities in Kvemo Kartli \nLocal Gender Equaltiy Council in Kvemo Kartli \nNCCE","intOrgs":"International Children’s Center \nTURKEY\nCEPED\nUNFPA","gsdg":"","natSdgs":"5.1.1 \n5.1.1.1 ","m":""," ":""},{"project":"Support to the Ministry of Agriculture (MoA) in SDGs implementation and monitoring","dates":"","natOrgs":"MEPA\nAoG\nGeostat","intOrgs":"FAO","gsdg":"","natSdgs":"2.1.1\n2.1.2\n2.3.1\n2.3.2\n2.5.1\n2.5.2\n2.a.1\n2.c.1\n5.a.1\n5.a.2\n14.4.1\n15.1.1\n15.2.1\n11.6.1","m":""," ":""},{"project":"Targeted support for agricultural statistical innovation at FAO","dates":"","natOrgs":"MEPA \nGeostat","intOrgs":"FAO\nBill and Melinda Gates Foundation (Donor)","gsdg":"","natSdgs":"2.3.1\n2.3.2","m":""," ":""},{"project":"Support to MEPA in mainstreaming sustainable food and agriculture in the SDG nationalization process to accelerate SDG implementation","dates":"","natOrgs":"MEPA","intOrgs":"FAO\nGIZ","gsdg":"","natSdgs":"","m":""," ":""},{"project":"Civil Society Support Programme in Abkhazia","dates":"January 2017- June 2019","natOrgs":"Civil Society Sector","intOrgs":"UNDP\nEU\n","gsdg":"SDG 16","natSdgs":"16.6\n16.7","m":""," ":""},{"project":"HORIZONS Abkhazia","dates":"June 2016-June 2021","natOrgs":"Abkhaz NGOs: \nALERT\nOYH \nAMRA-2014 \nSukhumi HIV AIDS Centre","intOrgs":"UNDP\nUSAID\nUNICEF \nAAH","gsdg":"SDG3\nSDG4\nSDG5\nSDG8\nSDG17","natSdgs":"n/a","m":""," ":""},{"project":"ENPARD 3 Abkhazia","dates":"March 2018-April 2021","natOrgs":"Abkhaz NGOs: \nAmilatt Resurskua \nALERT\nCIHBFF","intOrgs":"UNDP \nEU\nFAO\nDRC\nAAH","gsdg":"SDG1\nSDG2\nSDG5\nSDG12\nSDG15","natSdgs":"n/a","m":""," ":""},{"project":"VET-EU Abkhazia","dates":"February 2019-January 2022","natOrgs":"TBC","intOrgs":"UNDP\nEU\nUNICEF\nFAO","gsdg":"SDG1\nSDG3\nSDG4\nSDG16","natSdgs":"n/a","m":""," ":""},{"project":"Sub-Regional PDA2","dates":"July 2018-April 2019","natOrgs":"","intOrgs":"UNDP","gsdg":"SDG16","natSdgs":"n/a","m":""," ":""},{"project":"Parliamentary Strengthening","dates":"Start:DMY End: DMY","natOrgs":"Parliament of Georgia","intOrgs":"UNDP\nEU","gsdg":"SDG 16","natSdgs":"SDG 16.6.2.2\nSDG 16.6.2.3\nSDG 16.7.2 \nSDG 16.8.1","m":""," ":""},{"project":"Governance Reform Fund (GRF)","dates":"Start:05.12.2015 End: 31.12.2012","natOrgs":"","intOrgs":"UNDP\nGovernment of Sweden","gsdg":"SDG1.5 \nSDG7.2\nSDG10.3\nSDG11.6\nSDG13.2\nSDG16.6. \nSDG17.8","natSdgs":"1.5.3 \n7.2.1.1 \n10.3 \n11.6.1 \n13.2 \n16.6.2.2 \n17.8.3","m":""," ":""},{"project":"Innovation Facility","dates":"November 2018 -August 2019","natOrgs":"ServiceLab\nForset\nRustavi Hub","intOrgs":"UNDP\nUn Women\nDanish Government through Innovation Facility","gsdg":"SDG5","natSdgs":"5.1.1.","m":""," ":""},{"project":"UN Joint Program for Gender Equality","dates":"November 2015 - December 2020","natOrgs":"Gender Equality Council of the Parliament of Georgia Municipal Service Providers Association\nCenter for Strategic Research and Developmenmt Women Farmers Association","intOrgs":"UNDP\nGovernment of Sweden","gsdg":"SDG 5","natSdgs":"5.4\n5.5\n5.a\n5.b\n5.c","m":""," ":""},{"project":"UN JP on Human Rights","dates":"January 2016 - December 2019","natOrgs":"NHRSAP Inter-Agency\nCouncil and its secretariat\nThe Personal Data Protection Inspector \nMinistry of Justice\ngovernment institutions on\nlabour and child care\nPublic Defender (Ombudsperson)\nThe Parliamentary Committee on Human Rights and Civil Integration\nParliamentary Committee on Legal Issues\nHigh School of Justice and Ministry of Internal Affairs\nhigh education institutions\nmedia","intOrgs":"UNDP\nEU\nUNICEF\nOHCHR\nILO","gsdg":"4.5\n 51\n 52\n 8.5\n10.2\n10.3\n11.2\n 11.7 \n16.3\n166\n16.7\n16.10\n16a\n16b \nSDG17","natSdgs":"4.a.1\n10.2.1\n10.3.1.1\n16.3.1.1\n16.6.2.2\n16.6.2.4\n16.6.2.6\n16.7.1\n16.7.2\n16.b.1\n16.b.1.1\n17.18.1\n17.18.2\n17.18.3","m":""," ":""},{"project":"Support to Public Administration Reform/ GRF 2/UK","dates":"July 2016 - December 2020","natOrgs":"Civil Service Bureau\nData Exchange Agency\nAoG","intOrgs":"UNDP\nUKaid","gsdg":"SDG16.6","natSdgs":"16.6.2\n16.6.2.1\n16.2.2 \n16.6.2.9\n16.7.1","m":""," ":""},{"project":"Fostering Local & Regional Development_Phase II","dates":"December 2017 - November 2021","natOrgs":"Ministry of Regional Development and Infrastructure of Georgia\nParliament of Georgia AoG\nMunicipal Authorities\nNational Association of Local Authorities\nMunicipal Service Providers Association","intOrgs":"UNDP\nSDC \nADA","gsdg":"SDG 1 Targets: 1.2 1.4\nSDG 5 Target: 5.1\nSDG 16 Targets: 16.6 16.7","natSdgs":"1.2.1\n1.4.1\n5.1.1\n16.6.2\n 16.6.2.9\n16.7.2\n16.7.2.1","m":""," ":""},{"project":"Decentralization & Good Governance","dates":"March 2018 - March 2023","natOrgs":"Ministry of Regional Development and Infrastructure of Georgia\nParliament of Georgia\nAoG\nTbilisi City Hall Municipal Authorities\nCivil Service Bureau National Association of Local Authorities\nMunicipal Service Providers Association\nWomens Information Centre","intOrgs":"UNDP\nGovernment of Denmark","gsdg":"SDG 5 Target: 5.5\nSDG 16 Targets: 16.5 16.6 16.7","natSdgs":"5.5.1.1\n16.5.1.6\n16.5.2.1\n16.6.2\n16.6.2.3\n16.6.2.7\n16.6.2.8\n16.7.1\n16.7.1.2\n16.7.2\n16.7.2.1","m":""," ":""},{"project":"Alternative Dispute Resolution-EU","dates":"January 2019 - December 2020","natOrgs":"Ministry of Justice High Council of Justice \nHigh School of Justice\nGeorgian Bar Association\nGeorgian Association of Arbitrators\nGeorgian Association of Mediators\nGeorgian Interntional Arbitrtion Centre\nTbilisi State University National Centre for ADR\nArbitration Initiative Georgia","intOrgs":"UNDP\nEU","gsdg":"SDG 16 / 16.3","natSdgs":"16.3.1.1","m":""," ":""},{"project":"Improving Rural Development in Georgia (ENPARD III)","dates":"January 2018 - December 2022","natOrgs":"MEPA\nMinsitry of Agriculture of Ajara AR","intOrgs":"UNDP\nEU","gsdg":"SDG 2/2.3 \nSDG 15/15.2","natSdgs":"2.3.2.1\n15.2.1","m":""," ":""},{"project":"VET-Agriculture-SDC-phase 2","dates":"September 2018 - August 2022","natOrgs":"Ministry of Education Science Culture and Sports\nMEPA","intOrgs":"UNDP\nSDC\nADA","gsdg":"SDG 4","natSdgs":"4.3.4\n4.4.5","m":""," ":""},{"project":"Private Sector Development EU","dates":"February 2019 - January 2023","natOrgs":"Ministry of Economy and Sustainable Development\nMEPA","intOrgs":"UNDP\nFAO \nUNIDO\nEU","gsdg":"SDG 8","natSdgs":"8.2\n8.3\n8.8","m":""," ":""},{"project":"4NR Support to GEF CBD Parties 2010 biodiversity targets","dates":"Start:DMY End: DMY","natOrgs":"","intOrgs":"","gsdg":"","natSdgs":"","m":""," ":""},{"project":"Green Cities Initiative_Achara","dates":"August 2015 - July 2019","natOrgs":"MEPA\nGovernment of Autonomous Republic of Ajara\nBatumi City Hall","intOrgs":"UNDP\nGlobal Environmental Facility","gsdg":"SDG 3 \nSDG 7 \nSDG 11 \nSDG 13","natSdgs":"3.6.1\n 3.d.2\n7.1.2\n11.6.2\n13.2.1","m":""," ":""},{"project":"CCCD in Georgia","dates":"Start:DMY End: DMY","natOrgs":"","intOrgs":"","gsdg":"","natSdgs":"","m":""," ":""},{"project":"Multi Hazard Early Warning/GCF","dates":"Start:DMY End: DMY","natOrgs":"","intOrgs":"","gsdg":"","natSdgs":"","m":""," ":""},{"project":"Multi Hazard Early Warning/SDC","dates":"December 2018 - November 2023","natOrgs":"MEPA\nNational Environmental Agency\nEmergency Management Service","intOrgs":"UNDP\nGCF","gsdg":"SDG 13","natSdgs":"13.2.1","m":""," ":""},{"project":"PIMS 5946 SBUR and Fourth National Communic.to UNFCCC","dates":"Start:DMY End: DMY","natOrgs":"MEPA\nNational Environmental Agency\nEnvironmental Information and Education Center\nWorld Experience for Georgia","intOrgs":"UNDP\nGEF","gsdg":"SDG 13","natSdgs":"13.2.1","m":""," ":""},{"project":"Protected Areas Financial Sustainability","dates":"Start:DMY End: DMY","natOrgs":"","intOrgs":"","gsdg":"","natSdgs":"","m":""," ":""},{"project":"Sustainable Cities","dates":"October 2018 -December 2019","natOrgs":"ServiceLab\nForset\nRustavi Hub\nRustavi Mayor's Office","intOrgs":"UNDP\nUrban Workshop Poland\nOrbeliani Platform\nEffect A.I. (In kind)","gsdg":"SDG 11\nSDG 10","natSdgs":"11.6","m":""," ":""},{"project":"HCFC Phase-Out Management Plan","dates":"Start:DMY End: DMY","natOrgs":"","intOrgs":"","gsdg":"","natSdgs":"","m":""," ":""}])
+
+
+        </script>
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.3.4/vue.min.js"></script>
+        <script src="https://unpkg.com/vue-multiselect@2.1.4"></script>
+        
+    </body>
+</html>
+
